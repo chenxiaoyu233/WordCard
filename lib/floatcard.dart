@@ -4,12 +4,13 @@ import 'package:flutter/rendering.dart';
 
 class FloatCard extends StatelessWidget {
 
-  FloatCard({this.child, this.color: Colors.white, this.height: 200, this.width: 300});
+  FloatCard({this.child, this.color: Colors.white, this.height: 200, this.width: 300, this.needShadow: true});
 
   final Widget child;
   final Color color;
   final double width;
   final double height;
+  final bool needShadow;
   final BorderRadius borderRadius = BorderRadius.all(Radius.circular(15));
 
   @override
@@ -20,13 +21,13 @@ class FloatCard extends StatelessWidget {
           borderRadius: borderRadius
         ),
         color: color,
-        shadows: <BoxShadow>[
+        shadows: needShadow ? <BoxShadow>[
           BoxShadow(
             color: Colors.black12,
             blurRadius: 20,
             spreadRadius: 2
           )
-        ]
+        ] : null,
       ),
       width: width,
       height: height,

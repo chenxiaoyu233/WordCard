@@ -5,14 +5,16 @@ import 'package:word_card/wordpage.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 
 class WordCard extends StatelessWidget {
-  WordCard({this.width: 300, this.height: 200, this.haveDetailedPage: true});
+  WordCard({this.width: 300, this.height: 200, this.haveDetailedPage: true, this.needShadow: true});
   final double width;
   final double height;
+  final bool needShadow;
   final bool haveDetailedPage;
 
   @override
   Widget build(BuildContext context) {
     return FloatCard(
+      needShadow: needShadow,
       height: height,
       width: width,
       child: GestureDetector(
@@ -50,7 +52,6 @@ class WordCard extends StatelessWidget {
   void _onTap(BuildContext context) {
     Navigator.push(
       context,
-      /* TODO: 将MaterialPageRoute换成: PageRouteBuilder */
       PageRouteBuilder(
         pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondAnimation) {
           timeDilation = 1.0;
@@ -65,11 +66,6 @@ class WordCard extends StatelessWidget {
           );
         }
       )
-      /*
-      MaterialPageRoute(
-        builder: (context) => WordPage(),
-      )
-      */
     );
   }
 }

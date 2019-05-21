@@ -16,7 +16,8 @@ class WordPage extends StatelessWidget {
               child: WordCard(
                 width: 1000, // fill the border
                 height: 300,
-                haveDetailedPage: false
+                haveDetailedPage: false,
+                needShadow: false,
               ),
             )
           ),
