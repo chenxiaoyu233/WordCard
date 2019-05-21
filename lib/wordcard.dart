@@ -1,15 +1,22 @@
 import 'package:flutter/widgets.dart';
 import 'package:word_card/floatcard.dart';
 import 'package:flutter/material.dart';
+import 'package:word_card/wordpage.dart';
+import 'package:flutter/scheduler.dart' show timeDilation;
 
 class WordCard extends StatelessWidget {
+  WordCard({this.width: 300, this.height: 200, this.haveDetailedPage: true});
+  final double width;
+  final double height;
+  final bool haveDetailedPage;
+
   @override
   Widget build(BuildContext context) {
     return FloatCard(
+      height: height,
+      width: width,
       child: GestureDetector(
-        onTap: () {
-          /* todo */
-        },
+        onTap: haveDetailedPage ? () => _onTap(context) : null,
         child: Stack(
           alignment: AlignmentDirectional.topCenter,
           children: <Widget>[
@@ -23,13 +30,46 @@ class WordCard extends StatelessWidget {
                   height: 50,
                   color: Colors.white,
                   child: Center(
-                    child: Text('Mountain'),
+                    child: Text(
+                      'Mountain',
+                      style: TextStyle(
+                        inherit: false,
+                        fontSize: 15,
+                        color: Colors.black,
+                      ), 
+                    ),
                   ),
                 ),
               ),
           ],
         ),
       )
+    );
+  }
+
+  void _onTap(BuildContext context) {
+    Navigator.push(
+      context,
+      /* TODO: 将MaterialPageRoute换成: PageRouteBuilder */
+      PageRouteBuilder(
+        pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondAnimation) {
+          timeDilation = 1.0;
+          return AnimatedBuilder(
+            animation: animation,
+            builder: (BuildContext context, Widget child) {
+              return Opacity(
+                opacity: animation.value,
+                child: WordPage(),
+              );
+            },
+          );
+        }
+      )
+      /*
+      MaterialPageRoute(
+        builder: (context) => WordPage(),
+      )
+      */
     );
   }
 }
