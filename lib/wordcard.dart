@@ -4,16 +4,44 @@ import 'package:flutter/material.dart';
 import 'package:word_card/wordpage.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 
+class MyCliper extends CustomClipper<RRect> {
+  MyCliper({this.radius});
+  final Radius radius;
+  @override
+  RRect getClip(Size size) {
+    // TODO: implement getClip
+    return RRect.fromLTRBR(0, 0, size.width * 0.5, size.height * 0.5, radius);
+  }
+  @override
+  bool shouldReclip(CustomClipper<RRect> oldClipper) {
+    // TODO: implement shouldReclip
+    return true;
+  }
+}
+
 class WordCard extends StatelessWidget {
-  WordCard({this.width: 300, this.height: 200, this.haveDetailedPage: true, this.needShadow: true});
+  WordCard({
+    this.width: 300, 
+    this.height: 200, 
+    this.haveDetailedPage: true, 
+    this.needShadow: true, 
+    this.heroTag: 'hero-card',
+    this.margin: margin_init
+  });
+
   final double width;
   final double height;
   final bool needShadow;
   final bool haveDetailedPage;
+  final String heroTag;
+  final EdgeInsetsGeometry margin;
+  static const EdgeInsetsGeometry margin_init = EdgeInsets.all(0);
+  static const opacityCurve = const Interval(0.0, 0.75, curve: Curves.easeOut);
 
   @override
   Widget build(BuildContext context) {
     return FloatCard(
+      margin: margin,
       needShadow: needShadow,
       height: height,
       width: width,
@@ -59,8 +87,10 @@ class WordCard extends StatelessWidget {
             animation: animation,
             builder: (BuildContext context, Widget child) {
               return Opacity(
-                opacity: animation.value,
-                child: WordPage(),
+                opacity: opacityCurve.transform(animation.value),
+                  child: WordPage(
+                    heroTag: heroTag,
+                  ),
               );
             },
           );
