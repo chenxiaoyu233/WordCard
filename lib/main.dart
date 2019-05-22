@@ -18,9 +18,10 @@ import 'wordlist.dart';
 import 'package:dio/dio.dart';
 import 'wordChageNotifier.dart';
 import 'package:provider/provider.dart';
+import 'addWordFAB.dart';
 
 // entry of the App
-void main() => runApp(TheApp());
+void main() => runApp(WidgetTest());
 
 // entry for the whole app
 class TheApp extends StatelessWidget {
@@ -31,6 +32,17 @@ class TheApp extends StatelessWidget {
         builder: (context) => WordChangeNotifier(),
         child: HomePage(),
       ),
+    );
+  }
+}
+
+// entry for test new widget
+class WidgetTest extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: HomePage(),
+      color: Colors.white,
     );
   }
 }

@@ -7,6 +7,7 @@ import 'package:word_card/wordChageNotifier.dart';
 import 'package:word_card/wordlist.dart';
 import 'header.dart';
 import 'package:provider/provider.dart';
+import 'addWordFAB.dart';
 
 class HomePage extends StatefulWidget{
   @override 
@@ -43,25 +44,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           controller: _tabController,
           children: tabs.map((e) {
             return Center(
-              child: WordList(wordlist: e),
+              //child: WordList(wordlist: e),
             );
           }).toList()
         )
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () {
-          Provider.of<WordChangeNotifier>(context).insertWord('pikachu', tabs[_tabController.index]);
-        },
-      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: AddWordFAB(),
       bottomNavigationBar: BottomAppBar(
         //shape: CircularNotchedRectangle(),
         notchMargin: 4.0,
         color: Colors.blueGrey,
         child: Container(
           height: 20,
-          padding: EdgeInsets.only(right: 90),
+          alignment: AlignmentDirectional.center,
+          //padding: EdgeInsets.only(right: 90),
           child: TabBar(
             isScrollable: true,
             indicatorColor: Colors.white54,
