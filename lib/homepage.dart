@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:word_card/wordChageNotifier.dart';
 import 'package:word_card/wordlist.dart';
 import 'header.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget{
   @override 
@@ -41,7 +43,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           controller: _tabController,
           children: tabs.map((e) {
             return Center(
-              child: WordList(),
+              child: WordList(wordlist: e),
             );
           }).toList()
         )

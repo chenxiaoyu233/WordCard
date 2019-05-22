@@ -1,29 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:word_card/wordChageNotifier.dart';
 import 'wordcard.dart';
+import 'package:provider/provider.dart';
 
 class WordList extends StatelessWidget {
-  Widget _heroWordCard(String heroTag) {
-    Map<String, dynamic> word = Map<String, dynamic>();
-    word['picture-url'] = 'http://img3.imgtn.bdimg.com/it/u=2878379177,753838150&fm=26&gp=0.jpg';
-    word['keyword'] = 'six';
-    return Hero (
-      tag: heroTag,
-      child: WordCard(
-        word: word,
-        height: 200,
-        width: 300,
-        heroTag: heroTag,
-        margin: EdgeInsets.all(10),
-      )
-    );
-  }
+  WordList({this.wordlist});
+  final String wordlist;
+
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: EdgeInsets.all(50),
-      children: <Widget>[
-        _heroWordCard('1'),
-      ],
+    return Consumer<WordChangeNotifier> (
+      builder: (context, notifier, child) {
+        List<Widget> children = List<Widget>();
+        if (notifier.data.length > 0) {
+          notifier.data[wordlist].forEach((String keyword, Map<String, dynamic> word) {
+            String heroTag = 'hero-' + keyword;
+            children.add(
+              Hero(
+                tag: heroTag,
+                child: WordCard(
+                  word: word,
+                  height: 200,
+                  width: 300,
+                  heroTag: heroTag,
+                  margin: EdgeInsets.all(10),
+                )
+              )
+            );
+          });
+        } else {
+          children.add(Text('nothing'));
+        }
+        return ListView(
+          padding: EdgeInsets.all(50),
+          children: children
+        );
+      }
     );
   }
 }

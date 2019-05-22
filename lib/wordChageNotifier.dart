@@ -8,7 +8,8 @@ import 'package:word_card/wordfinder.dart';
 class WordChangeNotifier extends ChangeNotifier {
   WordChangeNotifier() {
     _buildDataBase()
-      .then((_) => _buildData());
+      .then((_) => _buildData())
+      .then((_) => notifyListeners());
   }
 
   // DB relative
@@ -17,10 +18,10 @@ class WordChangeNotifier extends ChangeNotifier {
   final String tableWord = '''
     CREATE TABLE Words (
       word varchar(100) primary key,
-      pronounce-En varchar(100),
-      pronounce-Am varchar(100),
-      picture-url varchar(10000)
-    ) charset utf8;
+      pronounceEn varchar(100),
+      pronounceAm varchar(100),
+      pictureUrl varchar(10000)
+    );
   ''';
   final String tableWordMeaning= '''
     CREATE TABLE WordMeaning (
@@ -28,7 +29,7 @@ class WordChangeNotifier extends ChangeNotifier {
       meaning varchar (10000) not null,
       primary key (word, meaning),
       foreign key (word) references Words(word) on delete cascade
-    ) charset utf8;
+    );
   ''';
   final String tableWordList = '''
     CREATE TABLE WordList (
@@ -36,17 +37,19 @@ class WordChangeNotifier extends ChangeNotifier {
       wordlist varchar (100) not null,
       primary key(word, wordlist),
       foreign key (word) references Words(word) on delete cascade
-    ) charset utf8;
+    );
   ''';
   // word relative
-  Map<String, Map<String, Map<String, dynamic> > > data;
+  Map<String, Map<String, Map<String, dynamic> > > data = Map<String, Map<String, Map<String, dynamic> > >();
 
   /* Open or Build the whole database */
   Future<void> _buildDataBase() async {
     databasePath = await getDatabasesPath();
+    print('1');
     databasePath = join(databasePath, 'wordcard.db');
     /* only used in debug */
     await deleteDatabase(databasePath);
+    print('2');
     /* only used in debug */
     db = await openDatabase(databasePath, version: 1,
       onCreate: (Database db, int version) async {
@@ -55,6 +58,7 @@ class WordChangeNotifier extends ChangeNotifier {
         await db.execute(tableWordList);
       }
     );
+    print('3');
   }
 
   Future<void> _buildData() async {
@@ -70,9 +74,11 @@ class WordChangeNotifier extends ChangeNotifier {
         SELECT * FROM WordList
         WHERE wordlist = "$wordlist"
       ''');
+    print('4');
       for (final mp in curList) {
         String word = mp['word'];
         data[wordlist][word] = await queryWord(word);
+        print('5');
       }
     }
   }
@@ -86,6 +92,7 @@ class WordChangeNotifier extends ChangeNotifier {
       SELECT * FROM WordMeaning
       WHERE word = "$word";
     ''');
+    print('6');
     List<String> meaningList = List<String>();
     for (final mp in meaning) 
       meaningList.add(mp['meaning']);
@@ -95,10 +102,11 @@ class WordChangeNotifier extends ChangeNotifier {
       SELECT * FROM Words
       WHERE word = "$word";
     ''');
+    print('7');
     for (final mp in auxList) {
-      info['pronounce-En'] = mp['pronounce-En'];
-      info['pronounce-Am'] = mp['pronounce-Am'];
-      info['picture-url'] = mp['picture-url'];
+      info['pronounce-En'] = mp['pronounceEn'];
+      info['pronounce-Am'] = mp['pronounceAm'];
+      info['picture-url'] = mp['pictureUrl'];
     }
     /* return */
     return info;
@@ -108,22 +116,24 @@ class WordChangeNotifier extends ChangeNotifier {
     /* search the word on the internet */
     Map<String, dynamic> word = await findWord(keyword);
     /* add to table Words */
-    await db.rawInsert('''
-      INSERT INTO Words(word, pronounce-En, pronounce-Am, picture-url)
-      VALUES ("${word['keyword']}", "${word['pronounce-En']}", "${word['pronounce-Am']}", "${word['picture-url']}");
-    ''');
-    /* add to table WordList */
-    await db.rawInsert('''
-      INSERT INTO WordList(word, wordlist)
-      VALUES ("${word['keyword']}", "$at");
-    ''');
-    /* add to table WordMeaning */
-    for (final meaning in word['meaning']) {
+    await db.transaction((db) async {
       await db.rawInsert('''
-        INSERT INTO WordMeaning(word, meaning)
-        VALUES ("${word['keyword']}", "$meaning");
+        INSERT INTO Words(word, pronounceEn, pronounceAm, pictureUrl)
+        VALUES ("${word['keyword']}", "${word['pronounce-En']}", "${word['pronounce-Am']}", "${word['picture-url']}");
       ''');
-    }
+      /* add to table WordList */
+      await db.rawInsert('''
+        INSERT INTO WordList(word, wordlist)
+        VALUES ("${word['keyword']}", "$at");
+      ''');
+      /* add to table WordMeaning */
+      for (final meaning in word['meaning']) {
+        await db.rawInsert('''
+          INSERT INTO WordMeaning(word, meaning)
+          VALUES ("${word['keyword']}", "$meaning");
+        ''');
+      }
+    });
     /* notify all listeners */
     notifyListeners();
   }

@@ -16,37 +16,21 @@ import 'wordpage.dart';
 import 'wordlist.dart';
 
 import 'package:dio/dio.dart';
+import 'wordChageNotifier.dart';
+import 'package:provider/provider.dart';
 
 // entry of the App
-//void main() => runApp(WordCard());
-
-void main() {
-  Future<Map<String, dynamic> > futureWord =  findWord('China');
-  futureWord .then((Map<String, dynamic> word) {
-    runApp(TheApp(word: word));
-  });
-}
+void main() => runApp(TheApp());
 
 // entry for the whole app
 class TheApp extends StatelessWidget {
-  TheApp({this.word});
-  final Map<String, dynamic> word;
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      //home: Image.network('http://a4.att.hudong.com/83/66/20200000013920144721665253228_s.jpg')
-      home: Scaffold(
-        backgroundColor: Colors.white,
-        body: Center (
-          child: Hero(
-            tag: 'hero-card',
-            child: WordCard(
-              word: word,
-            )
-          )
-        ),
-      )
+      home: ChangeNotifierProvider(
+        builder: (context) => WordChangeNotifier(),
+        child: HomePage(),
+      ),
     );
   }
 }
