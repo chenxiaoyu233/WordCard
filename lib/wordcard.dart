@@ -3,6 +3,7 @@ import 'package:word_card/floatcard.dart';
 import 'package:flutter/material.dart';
 import 'package:word_card/wordpage.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
+import 'package:word_card/wordfinder.dart';
 
 class MyCliper extends CustomClipper<RRect> {
   MyCliper({this.radius});
@@ -19,16 +20,18 @@ class MyCliper extends CustomClipper<RRect> {
   }
 }
 
-class WordCard extends StatelessWidget {
+class WordCard extends StatelessWidget{
   WordCard({
     this.width: 300, 
     this.height: 200, 
     this.haveDetailedPage: true, 
     this.needShadow: true, 
     this.heroTag: 'hero-card',
-    this.margin: margin_init
+    this.margin: margin_init,
+    @required this.word
   });
 
+  final Map<String, dynamic> word;
   final double width;
   final double height;
   final bool needShadow;
@@ -46,14 +49,26 @@ class WordCard extends StatelessWidget {
       height: height,
       width: width,
       child: GestureDetector(
-        onTap: haveDetailedPage ? () => _onTap(context) : null,
+        onTap: haveDetailedPage && word != null 
+                ? () => _onTap(context) : null,
         child: Stack(
           alignment: AlignmentDirectional.topCenter,
           children: <Widget>[
+            /*
               Image(
                 fit: BoxFit.fitWidth,
                 image: AssetImage('images/lake.jpg'),
               ),
+              */
+              /*
+              FadeInImage.assetNetwork(
+                width: 300,
+                height: 170,
+                placeholder: 'images/lake.jpg',
+                image: word['picture-url'],
+              ),
+              */
+              Image.network(word['picture-url']),
               Container(
                 alignment: AlignmentDirectional.bottomStart,
                 child: Container(
@@ -61,7 +76,7 @@ class WordCard extends StatelessWidget {
                   color: Colors.white,
                   child: Center(
                     child: Text(
-                      'Mountain',
+                      word == null ? 'Mountain' : word['keyword'],
                       style: TextStyle(
                         inherit: false,
                         fontSize: 15,
@@ -90,6 +105,7 @@ class WordCard extends StatelessWidget {
                 opacity: opacityCurve.transform(animation.value),
                   child: WordPage(
                     heroTag: heroTag,
+                    word: word,
                   ),
               );
             },

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 
 //library for html parse
@@ -5,11 +6,21 @@ import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart';
 
 // Entry
-Map<String, dynamic> findWord(String keyword) {
-  Future<Document> futureDocument = getDocument(keyword);
-  Map<String, dynamic> word = findWordFromDocument(futureDocument);
-  getPicture(word, keyword);
-  return word;
+Future<Map<String, dynamic> > findWord(String keyword) async {
+  Map<String, dynamic> word = Map<String, dynamic>();
+  word['keyword'] = 'none';
+  return getDocument(keyword).then((Document document) {
+    /* find the word itself */
+    findKeyWord(document, word);
+    /* find the pronunciation */
+    findPronunciation(document, word);
+    /* find the meanings */
+    findMeaning(document, word);
+  }).then((_) {
+    return getPictureURL(word, keyword).then((_){
+      return word;
+    });
+  });
 }
 
 // get document from internet
@@ -25,27 +36,12 @@ Future<Document> getDocument(String keyword) async {
   return document;
 }
 
-Map<String, dynamic> findWordFromDocument(Future<Document> futureDocument) {
-  Map<String, dynamic> word = new Map<String, dynamic>();
-  futureDocument.then((Document document) {
-    /* find the word itself */
-    findKeyWord(document, word);
-    /* find the pronunciation */
-    findPronunciation(document, word);
-    /* find the meanings */
-    findMeaning(document, word);
-    /* Mark the finial sattus of the word */
-    word['status'] = 'success';
-  }).catchError((e) {
-    word['status'] = 'error';
-  });
-  return word;
-}
-
 // find the keyword from the document
 void findKeyWord(Document document, Map<String, dynamic> word) {
   List<Element> list = document.getElementsByClassName('keyword');
-  word['keyword'] = list.first.innerHtml;
+  if (list.length > 0) {
+    word['keyword'] = list.first.innerHtml;
+  }
   /* Debug */
   print(word['keyword']);
 }
@@ -55,11 +51,14 @@ void findPronunciation(Document document, Map<String, dynamic> word) {
   List<Element> list = document.getElementsByClassName('pronounce');
   for (final tab in list) {
     String kind = tab.innerHtml.substring(0, 1);
-    String content = tab.getElementsByClassName('phonetic').first.innerHtml;
-    if (kind == '英') {
-      word['pronounce-En'] = content;
-    } else if (kind == '美') {
-      word['pronounce-Am'] = content;
+    List<Element> elem = tab.getElementsByClassName('phonetic');
+    if (elem.length > 0) {
+      String content = elem.first.innerHtml;
+      if (kind == '英') {
+        word['pronounce-En'] = content;
+      } else if (kind == '美') {
+        word['pronounce-Am'] = content;
+      }
     }
   }
   /* Debug */
@@ -84,7 +83,44 @@ void findMeaning(Document document, Map<String, dynamic> word) {
 // get the url for the picture matches the keyword from internet
 // @param Map<String, dynamic> word, dic used to store the url (word['picture-url'])
 // @param String keyword, keyword used for searching the picture on "www.baidu.com"
-void getPicture(Map<String, dynamic> word, String keyword) async {
+Future<void> getPictureURL(Map<String, dynamic> word, String keyword) async {
+  var dio = Dio(
+    BaseOptions(
+      connectTimeout: 1000,
+      receiveTimeout: 1000,
+      headers: {
+        /* fake the user agent */
+        HttpHeaders.userAgentHeader: 'dio',
+      }
+    )
+  );
+  Response rsp = await dio.get(
+    "http://www.baike.com/wiki/" + keyword,
+    options: Options(responseType: ResponseType.json)
+  );
+  //print(rsp.data);
+  RegExp exp = RegExp(r'<div style="margin:0 auto; display:none;"><img src=\"([^\"]*)\">');
+  Match matches = exp.firstMatch(rsp.data);
+  word['picture-url'] = matches.group(0);
+  exp = RegExp(r'http://[^\"]*');
+  matches = exp.firstMatch(word['picture-url']);
+  word['picture-url'] = matches.group(0);
+  /* Debug */
+  print(word['picture-url']);
+  /*
+  Document document = parse(rsp.data);
+  List<Element> list = document.getElementsByClassName('torpedo-thumb-link');
+  for (final tag in list) {
+    word['picture-url'] = tag.getElementsByTagName('img').first.attributes['src'];
+    print(tag.toString());
+    break;
+  }
+  /* Debug */
+  print(word['picture-url']);
+  */
+}
+/* could not use, because www.baidu.com will have 403
+Future<void> getPictureURL(Map<String, dynamic> word, String keyword) async {
   var dio = Dio();
   Response rsp = await dio.get(
     "http://image.baidu.com/search/index?tn=baiduimage&word=" + keyword,
@@ -98,4 +134,29 @@ void getPicture(Map<String, dynamic> word, String keyword) async {
   word['picture-url'] = matches.group(0);
   /* Debug */
   print(word['picture-url']);
+}
+*/
+
+// could not work, because of 403 of baidu :(
+Future<void> downLoadPicture(Map<String, dynamic> word) async {
+  print('downloading');
+  var dio = Dio(
+    BaseOptions(
+      connectTimeout: 1000,
+      receiveTimeout: 1000,
+      headers: {
+        /* fake the user agent */
+        HttpHeaders.userAgentHeader: 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0',
+      }
+    )
+  );
+  try {
+    Response rsp = await dio.get(
+      word['picture-url'],
+      options: Options(responseType: ResponseType.plain)
+    );
+    print(rsp.data);
+  } catch (e) {
+    print(e);
+  }
 }

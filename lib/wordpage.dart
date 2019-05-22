@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:word_card/wordcard.dart';
 
 class WordPage extends StatelessWidget {
-  WordPage({this.heroTag: 'hero-card'});
+  WordPage({this.heroTag: 'hero-card', @required this.word});
   final String heroTag;
+  final Map<String, dynamic> word;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,6 +23,7 @@ class WordPage extends StatelessWidget {
                 height: 300,
                 haveDetailedPage: false,
                 needShadow: false,
+                word: word,
               ),
             )
           ),
