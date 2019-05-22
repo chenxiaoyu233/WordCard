@@ -12,7 +12,7 @@ class WordList extends StatelessWidget {
     return Consumer<WordChangeNotifier> (
       builder: (context, notifier, child) {
         List<Widget> children = List<Widget>();
-        if (notifier.data.length > 0) {
+        if (notifier.data != null && notifier.data[wordlist] != null && notifier.data[wordlist].length > 0) {
           notifier.data[wordlist].forEach((String keyword, Map<String, dynamic> word) {
             String heroTag = 'hero-' + keyword;
             children.add(

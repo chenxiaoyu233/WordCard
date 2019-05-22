@@ -40,7 +40,7 @@ class WordChangeNotifier extends ChangeNotifier {
     );
   ''';
   // word relative
-  Map<String, Map<String, Map<String, dynamic> > > data = Map<String, Map<String, Map<String, dynamic> > >();
+  Map<String, Map<String, Map<String, dynamic> > > data;
 
   /* Open or Build the whole database */
   Future<void> _buildDataBase() async {
@@ -62,6 +62,8 @@ class WordChangeNotifier extends ChangeNotifier {
   }
 
   Future<void> _buildData() async {
+    /* init the data */
+    data = Map<String, Map<String, Map<String, dynamic> > >();
     /* add three word lists */
     List<String> wordlists = ['Beginner', 'Intermediate', 'Advanced'];
     for (final String wordlist in wordlists) {
@@ -127,13 +129,17 @@ class WordChangeNotifier extends ChangeNotifier {
         VALUES ("${word['keyword']}", "$at");
       ''');
       /* add to table WordMeaning */
-      for (final meaning in word['meaning']) {
-        await db.rawInsert('''
-          INSERT INTO WordMeaning(word, meaning)
-          VALUES ("${word['keyword']}", "$meaning");
-        ''');
+      if (word['meaning'] != null && word['meaning'] is List<String>) {
+        for (final meaning in word['meaning']) {
+          await db.rawInsert('''
+            INSERT INTO WordMeaning(word, meaning)
+            VALUES ("${word['keyword']}", "$meaning");
+          ''');
+        }
       }
     });
+    /* rebuild data */
+    await _buildData();
     /* notify all listeners */
     notifyListeners();
   }

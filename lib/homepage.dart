@@ -51,7 +51,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () {},
+        onPressed: () {
+          Provider.of<WordChangeNotifier>(context).insertWord('pikachu', tabs[_tabController.index]);
+        },
       ),
       bottomNavigationBar: BottomAppBar(
         //shape: CircularNotchedRectangle(),
