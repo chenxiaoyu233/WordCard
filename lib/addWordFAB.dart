@@ -32,13 +32,13 @@ class _AddWordFABState extends State<AddWordFAB> with TickerProviderStateMixin{
     return Material( 
       shadowColor: Colors.black,
       shape: StadiumBorder(),
-      color: Colors.pink,
+      color: Colors.deepPurple,
       elevation: 8,
       child: Container(
         alignment: AlignmentDirectional.centerEnd,
         child: _child(),
         color: Colors.transparent,
-        width: 60 + (200 - 60) * controller.value,
+        width: 60 + (300 - 60) * controller.value,
         height: 60,
       )
     );
@@ -73,6 +73,12 @@ class _AddWordFABState extends State<AddWordFAB> with TickerProviderStateMixin{
               child: Container(
                 padding: EdgeInsets.only(left: 25),
                 child: TextField(
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w300),
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                    icon: Icon( Icons.translate),
+                    labelText: "请在这里输入单词",
+                  ),
                   onChanged: (s) {
                     keyword = s;
                   },

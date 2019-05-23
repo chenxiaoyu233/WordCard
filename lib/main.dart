@@ -32,6 +32,12 @@ class TheApp extends StatelessWidget {
         builder: (context) => WordChangeNotifier(),
         child: HomePage(),
       ),
+      darkTheme: ThemeData(
+        primaryColor: Colors.orange
+      ),
+      theme: ThemeData(
+        primaryColor: Colors.orange
+      )
     );
   }
 }
