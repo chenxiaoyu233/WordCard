@@ -69,8 +69,10 @@ class WordCard extends StatelessWidget{
               ),
               */
               word['picture-url'] != 'none' 
-              ? Image.network(word['picture-url']) 
-              : Image(
+              ? FadeInImage.assetNetwork( 
+                  image: word['picture-url'],
+                  placeholder: 'images/lake.jpg',
+              ) : Image(
                 image: AssetImage('images/lake.jpg')
               ) ,
               Container(
