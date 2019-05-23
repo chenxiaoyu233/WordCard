@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:word_card/wordpage.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:word_card/wordfinder.dart';
+import 'wordChageNotifier.dart';
+import 'package:provider/provider.dart';
 
 class MyCliper extends CustomClipper<RRect> {
   MyCliper({this.radius});
@@ -51,23 +53,22 @@ class WordCard extends StatelessWidget{
       child: GestureDetector(
         onTap: haveDetailedPage && word != null 
                 ? () => _onTap(context) : null,
+        onLongPressEnd: haveDetailedPage && word != null ? (LongPressEndDetails detail) {
+          Scaffold.of(context).showSnackBar(
+            SnackBar(
+              content: Text('你想要移除这个单词吗?'),
+              action: SnackBarAction(
+                label: '移除',
+                onPressed: () {
+                  Provider.of<WordChangeNotifier>(context).removeWord(word['keyword']);
+                },
+              ) ,
+            )
+          );
+        } : null,
         child: Stack(
           alignment: AlignmentDirectional.topCenter,
           children: <Widget>[
-            /*
-              Image(
-                fit: BoxFit.fitWidth,
-                image: AssetImage('images/lake.jpg'),
-              ),
-              */
-              /*
-              FadeInImage.assetNetwork(
-                width: 300,
-                height: 170,
-                placeholder: 'images/lake.jpg',
-                image: word['picture-url'],
-              ),
-              */
               word['picture-url'] != 'none' 
               ? FadeInImage.assetNetwork( 
                   image: word['picture-url'],

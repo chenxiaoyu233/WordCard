@@ -162,4 +162,26 @@ class WordChangeNotifier extends ChangeNotifier {
     });
     return mp;
   }
+
+  /* remove the word from the data base */
+  Future<void> removeWord(String keyword) async {
+    await db.transaction((db) async {
+      await db.rawDelete('''
+        DELETE FROM WordMeaning
+        WHERE word == "$keyword"
+      ''');
+      await db.rawDelete('''
+        DELETE FROM WordList
+        WHERE word == "$keyword"
+      ''');
+      await db.rawDelete('''
+        DELETE FROM Words
+        WHERE word == "$keyword"
+      ''');
+    });
+    /* rebuild data */
+    await _buildData();
+    /* notify all listeners */
+    notifyListeners();
+  }
 }
