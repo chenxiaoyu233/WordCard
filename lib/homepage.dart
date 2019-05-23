@@ -24,8 +24,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _tabController = new TabController(
       initialIndex: 0,
       length: tabs.length,
-      vsync: this
+      vsync: this,
     );
+    _tabController.addListener(() {
+      setState((){});
+    });
   }
 
   @override
@@ -44,13 +47,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           controller: _tabController,
           children: tabs.map((e) {
             return Center(
-              //child: WordList(wordlist: e),
+              child: WordList(wordlist: e),
             );
           }).toList()
         )
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: AddWordFAB(),
+      floatingActionButton: AddWordFAB(at: tabs[_tabController.index]),
       bottomNavigationBar: BottomAppBar(
         //shape: CircularNotchedRectangle(),
         notchMargin: 4.0,

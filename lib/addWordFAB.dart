@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
+import 'package:word_card/wordChageNotifier.dart';
+import 'package:provider/provider.dart';
 
 class AddWordFAB extends StatefulWidget {
+  AddWordFAB({this.at});
+  final String at;
   @override
   _AddWordFABState createState() => _AddWordFABState();
 }
 
 class _AddWordFABState extends State<AddWordFAB> with TickerProviderStateMixin{
   AnimationController controller;
+  String keyword;
 
   @override
   void initState() { 
@@ -67,7 +72,11 @@ class _AddWordFABState extends State<AddWordFAB> with TickerProviderStateMixin{
             Flexible(
               child: Container(
                 padding: EdgeInsets.only(left: 25),
-                child: TextField(),
+                child: TextField(
+                  onChanged: (s) {
+                    keyword = s;
+                  },
+                ),
               )
             ),
             Container(
@@ -78,6 +87,7 @@ class _AddWordFABState extends State<AddWordFAB> with TickerProviderStateMixin{
                 customBorder: CircleBorder(),
                 onTap: (){
                   controller.reverse();
+                  Provider.of<WordChangeNotifier>(context).insertWord(keyword, widget.at);
                 },
                 child: Icon(
                   Icons.check,

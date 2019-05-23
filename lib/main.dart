@@ -21,7 +21,7 @@ import 'package:provider/provider.dart';
 import 'addWordFAB.dart';
 
 // entry of the App
-void main() => runApp(WidgetTest());
+void main() => runApp(TheApp());
 
 // entry for the whole app
 class TheApp extends StatelessWidget {
