@@ -46,11 +46,9 @@ class WordChangeNotifier extends ChangeNotifier {
   /* Open or Build the whole database */
   Future<void> _buildDataBase() async {
     databasePath = await getDatabasesPath();
-    print('1');
     databasePath = join(databasePath, 'wordcard.db');
     /* only used in debug */
-    await deleteDatabase(databasePath);
-    print('2');
+    //await deleteDatabase(databasePath);
     /* only used in debug */
     db = await openDatabase(databasePath, version: 1,
       onCreate: (Database db, int version) async {
@@ -59,7 +57,6 @@ class WordChangeNotifier extends ChangeNotifier {
         await db.execute(tableWordList);
       }
     );
-    print('3');
   }
 
   Future<void> _buildData() async {
@@ -77,13 +74,11 @@ class WordChangeNotifier extends ChangeNotifier {
         SELECT * FROM WordList
         WHERE wordlist = "$wordlist";
       ''');
-      print('4');
       for (final mp in curList) {
         String word = mp['word'];
         data[wordlist][word] = await queryWord(word);
         data[wordlist][word]['has-created'] = mp['hasCreated'];
         data[wordlist][word]['wordlist'] = wordlist;
-        print('5');
       }
     }
   }
@@ -97,7 +92,6 @@ class WordChangeNotifier extends ChangeNotifier {
       SELECT * FROM WordMeaning
       WHERE word = "$word";
     ''');
-    print('6');
     List<String> meaningList = List<String>();
     for (final mp in meaning) 
       meaningList.add(mp['meaning']);
@@ -107,7 +101,6 @@ class WordChangeNotifier extends ChangeNotifier {
       SELECT * FROM Words
       WHERE word = "$word";
     ''');
-    print('7');
     for (final mp in auxList) {
       info['pronounce-En'] = mp['pronounceEn'];
       info['pronounce-Am'] = mp['pronounceAm'];
