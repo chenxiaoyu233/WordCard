@@ -19,6 +19,7 @@ class WordList extends StatelessWidget {
               Hero(
                 tag: heroTag,
                 child: WordCard(
+                  key: Key(wordlist+'{'+keyword+'}'),
                   word: word,
                   height: 200,
                   width: 300,
@@ -29,7 +30,11 @@ class WordList extends StatelessWidget {
             );
           });
         } else {
-          children.add(Text('nothing'));
+          children.add(
+            Center(
+              child: Text('Nothing Left Here')
+            )
+          );
         }
         return ListView(
           padding: EdgeInsets.all(50),

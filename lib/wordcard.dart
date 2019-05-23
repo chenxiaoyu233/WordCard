@@ -7,23 +7,9 @@ import 'package:word_card/wordfinder.dart';
 import 'wordChageNotifier.dart';
 import 'package:provider/provider.dart';
 
-class MyCliper extends CustomClipper<RRect> {
-  MyCliper({this.radius});
-  final Radius radius;
-  @override
-  RRect getClip(Size size) {
-    // TODO: implement getClip
-    return RRect.fromLTRBR(0, 0, size.width * 0.5, size.height * 0.5, radius);
-  }
-  @override
-  bool shouldReclip(CustomClipper<RRect> oldClipper) {
-    // TODO: implement shouldReclip
-    return true;
-  }
-}
-
-class WordCard extends StatelessWidget{
+class WordCard extends StatefulWidget {
   WordCard({
+    @required this.key,
     this.width: 300, 
     this.height: 200, 
     this.haveDetailedPage: true, 
@@ -31,8 +17,10 @@ class WordCard extends StatelessWidget{
     this.heroTag: 'hero-card',
     this.margin: margin_init,
     @required this.word
-  });
+  }): super(key: key);
+  
 
+  final Key key;
   final Map<String, dynamic> word;
   final double width;
   final double height;
@@ -44,23 +32,58 @@ class WordCard extends StatelessWidget{
   static const opacityCurve = const Interval(0.0, 0.75, curve: Curves.easeOut);
 
   @override
+  _WordCardState createState() => _WordCardState();
+}
+
+class _WordCardState extends State<WordCard> with TickerProviderStateMixin{
+  AnimationController controller;
+
+  @override
+  void initState() { 
+    super.initState();
+    controller = AnimationController(
+      value: widget.word['has-created'] == 1 ? 1.0 : 0.0,
+      duration: Duration(milliseconds: 300),
+      vsync: this
+    );
+    controller.addListener((){
+      setState(() { });
+    });
+    if (widget.word['has-created'] == 0) {
+      controller.addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          Provider.of<WordChangeNotifier>(context)
+                  .createWordCard(widget.word['keyword'], widget.word['wordlist']);
+        }
+      });
+      controller.forward();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FloatCard(
-      margin: margin,
-      needShadow: needShadow,
-      height: height,
-      width: width,
+      margin: widget.margin,
+      needShadow: widget.needShadow,
+      height: widget.height * controller.value,
+      width: widget.width,
       child: GestureDetector(
-        onTap: haveDetailedPage && word != null 
+        onTap: widget.haveDetailedPage && widget.word != null 
                 ? () => _onTap(context) : null,
-        onLongPressEnd: haveDetailedPage && word != null ? (LongPressEndDetails detail) {
+        onLongPress: widget.haveDetailedPage && widget.word != null ? () {
           Scaffold.of(context).showSnackBar(
             SnackBar(
               content: Text('你想要移除这个单词吗?'),
               action: SnackBarAction(
                 label: '移除',
                 onPressed: () {
-                  Provider.of<WordChangeNotifier>(context).removeWord(word['keyword']);
+                  controller.addStatusListener((status) {
+                    if (status == AnimationStatus.dismissed) {
+                      Provider.of<WordChangeNotifier>(context)
+                              .removeWord(widget.word['keyword']);
+                    }
+                  });
+                  controller.reverse();
                 },
               ) ,
             )
@@ -69,9 +92,9 @@ class WordCard extends StatelessWidget{
         child: Stack(
           alignment: AlignmentDirectional.topCenter,
           children: <Widget>[
-              word['picture-url'] != 'none' 
+              widget.word['picture-url'] != 'none' 
               ? FadeInImage.assetNetwork( 
-                  image: word['picture-url'],
+                  image: widget.word['picture-url'],
                   placeholder: 'images/lake.jpg',
               ) : Image(
                 image: AssetImage('images/lake.jpg')
@@ -83,7 +106,7 @@ class WordCard extends StatelessWidget{
                   color: Colors.white,
                   child: Center(
                     child: Text(
-                      word == null ? 'Mountain' : word['keyword'],
+                      widget.word == null ? 'Mountain' : widget.word['keyword'],
                       style: TextStyle(
                         inherit: false,
                         fontSize: 15,
@@ -109,10 +132,10 @@ class WordCard extends StatelessWidget{
             animation: animation,
             builder: (BuildContext context, Widget child) {
               return Opacity(
-                opacity: opacityCurve.transform(animation.value),
+                opacity: WordCard.opacityCurve.transform(animation.value),
                   child: WordPage(
-                    heroTag: heroTag,
-                    word: word,
+                    heroTag: widget.heroTag,
+                    word: widget.word,
                   ),
               );
             },
@@ -120,5 +143,11 @@ class WordCard extends StatelessWidget{
         }
       )
     );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 }

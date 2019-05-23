@@ -35,6 +35,7 @@ class WordChangeNotifier extends ChangeNotifier {
     CREATE TABLE WordList (
       word varchar (100) not null,
       wordlist varchar (100) not null,
+      hasCreated boolean DEFAULT false,
       primary key(word, wordlist),
       foreign key (word) references Words(word) on delete cascade
     );
@@ -74,12 +75,14 @@ class WordChangeNotifier extends ChangeNotifier {
     for (final String wordlist in wordlists) {
       List<Map> curList = await db.rawQuery('''
         SELECT * FROM WordList
-        WHERE wordlist = "$wordlist"
+        WHERE wordlist = "$wordlist";
       ''');
-    print('4');
+      print('4');
       for (final mp in curList) {
         String word = mp['word'];
         data[wordlist][word] = await queryWord(word);
+        data[wordlist][word]['has-created'] = mp['hasCreated'];
+        data[wordlist][word]['wordlist'] = wordlist;
         print('5');
       }
     }
@@ -168,15 +171,29 @@ class WordChangeNotifier extends ChangeNotifier {
     await db.transaction((db) async {
       await db.rawDelete('''
         DELETE FROM WordMeaning
-        WHERE word == "$keyword"
+        WHERE word == "$keyword";
       ''');
       await db.rawDelete('''
         DELETE FROM WordList
-        WHERE word == "$keyword"
+        WHERE word == "$keyword";
       ''');
       await db.rawDelete('''
         DELETE FROM Words
-        WHERE word == "$keyword"
+        WHERE word == "$keyword";
+      ''');
+    });
+    /* rebuild data */
+    await _buildData();
+    /* notify all listeners */
+    notifyListeners();
+  }
+
+  /* mark the word card as created in the database */
+  Future<void> createWordCard(String keyword, String at) async {
+    await db.transaction((db) async {
+      await db.rawUpdate('''
+        UPDATE WordList Set hasCreated = true
+        WHERE word = "$keyword" and wordlist = "$at";
       ''');
     });
     /* rebuild data */
