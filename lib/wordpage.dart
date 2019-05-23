@@ -39,8 +39,7 @@ class WordPage extends StatelessWidget {
             Expanded(
               child: ListView(
                 padding: EdgeInsets.all(40),
-                children: <Widget>[
-                ],
+                children: _generateInfoList(),      
               )
             ),
           ],
@@ -48,4 +47,15 @@ class WordPage extends StatelessWidget {
       )
     );
   }
+
+  List<Widget> _generateInfoList() {
+    List<Widget> list = List<Widget>();
+    list.add(Text('英式读音: ' + word['pronounce-En']));
+    list.add(Text('美式读音: ' + word['pronounce-Am']));
+    for (final meaning in word['meaning-list']) {
+      list.add(Text('意思: ' + meaning));
+    }
+    return list;
+  }
+
 }

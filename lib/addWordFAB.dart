@@ -13,7 +13,7 @@ class AddWordFAB extends StatefulWidget {
 
 class _AddWordFABState extends State<AddWordFAB> with TickerProviderStateMixin{
   AnimationController controller;
-  String keyword;
+  String keyword = '';
 
   @override
   void initState() { 
@@ -87,7 +87,11 @@ class _AddWordFABState extends State<AddWordFAB> with TickerProviderStateMixin{
                 customBorder: CircleBorder(),
                 onTap: (){
                   controller.reverse();
-                  Provider.of<WordChangeNotifier>(context).insertWord(keyword, widget.at);
+                  if (keyword != '') {
+                    print(keyword);
+                    Provider.of<WordChangeNotifier>(context)
+                            .insertWord(keyword, widget.at);
+                  }
                 },
                 child: Icon(
                   Icons.check,

@@ -8,10 +8,11 @@ import 'package:html/dom.dart';
 // Entry
 Future<Map<String, dynamic> > findWord(String keyword) async {
   Map<String, dynamic> word = Map<String, dynamic>();
-  word['keyword'] = 'none';
+  word['keyword'] = '';
   return getDocument(keyword).then((Document document) {
     /* find the word itself */
     findKeyWord(document, word);
+    print(word['keyword']);
     /* find the pronunciation */
     findPronunciation(document, word);
     /* find the meanings */
@@ -68,16 +69,18 @@ void findPronunciation(Document document, Map<String, dynamic> word) {
 
 // find the meaning from the document
 void findMeaning(Document document, Map<String, dynamic> word) {
-  List<Element> list = document.getElementsByClassName('trans-container')
-                               .first
-                               .getElementsByTagName('li');
-  List<String> meanings = new List<String>();
-  for (final li in list) {
-    meanings.add(li.innerHtml);
-    /* Debug */
-    print(li.innerHtml);
+  if (document.getElementsByClassName('trans-container').length > 0) {
+    List<Element> list = document.getElementsByClassName('trans-container')
+                                .first
+                                .getElementsByTagName('li');
+    List<String> meanings = new List<String>();
+    for (final li in list) {
+      meanings.add(li.innerHtml);
+      /* Debug */
+      print(li.innerHtml);
+    }
+    word['meaning-list'] = meanings;
   }
-  word['meaning-list'] = meanings;
 }
 
 // get the url for the picture matches the keyword from internet
@@ -101,12 +104,18 @@ Future<void> getPictureURL(Map<String, dynamic> word, String keyword) async {
   //print(rsp.data);
   RegExp exp = RegExp(r'<div style="margin:0 auto; display:none;"><img src=\"([^\"]*)\">');
   Match matches = exp.firstMatch(rsp.data);
-  word['picture-url'] = matches.group(0);
-  exp = RegExp(r'http://[^\"]*');
-  matches = exp.firstMatch(word['picture-url']);
-  word['picture-url'] = matches.group(0);
-  /* Debug */
-  print(word['picture-url']);
+  if (matches != null && matches.groupCount > 0) {
+    String tagString = matches.group(0);
+    exp = RegExp(r'(http://[^\"]*)');
+    matches = exp.firstMatch(tagString);
+    if (matches != null && matches.groupCount > 0) {
+      if (matches.group(0).substring(0,7) == 'http://') {
+        word['picture-url'] = matches.group(0);
+        /* Debug */
+        print(word['picture-url']);
+      }
+    }
+  }
   /*
   Document document = parse(rsp.data);
   List<Element> list = document.getElementsByClassName('torpedo-thumb-link');

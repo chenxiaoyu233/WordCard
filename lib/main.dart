@@ -21,7 +21,7 @@ import 'package:provider/provider.dart';
 import 'addWordFAB.dart';
 
 // entry of the App
-//void main() => runApp(TheApp());
+void main() => runApp(TheApp());
 
 // entry for the whole app
 class TheApp extends StatelessWidget {
@@ -46,12 +46,12 @@ class WidgetTest extends StatelessWidget {
     );
   }
 }
-
+/*
 void main() {
   findWord('football').then((Map<String, dynamic> word){
     runApp(WordPageTest(word: word));
   });
-}
+}*/
 class WordPageTest extends StatelessWidget {
   WordPageTest({this.word});
   final Map<String, dynamic> word;

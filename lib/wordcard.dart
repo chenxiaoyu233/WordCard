@@ -68,7 +68,11 @@ class WordCard extends StatelessWidget{
                 image: word['picture-url'],
               ),
               */
-              Image.network(word['picture-url']),
+              word['picture-url'] != 'none' 
+              ? Image.network(word['picture-url']) 
+              : Image(
+                image: AssetImage('images/lake.jpg')
+              ) ,
               Container(
                 alignment: AlignmentDirectional.bottomStart,
                 child: Container(

@@ -98,7 +98,7 @@ class WordChangeNotifier extends ChangeNotifier {
     List<String> meaningList = List<String>();
     for (final mp in meaning) 
       meaningList.add(mp['meaning']);
-    info['meaning'] = meaningList;
+    info['meaning-list'] = meaningList;
     /* add pronunciation and picture-url */
     List<Map> auxList = await db.rawQuery('''
       SELECT * FROM Words
@@ -111,28 +111,33 @@ class WordChangeNotifier extends ChangeNotifier {
       info['picture-url'] = mp['pictureUrl'];
     }
     /* return */
+    info = _fixWord(info);
     return info;
   }
 
   Future<void> insertWord(String keyword, String at) async {
+    Map<String, dynamic> word = Map<String, dynamic>();
     /* search the word on the internet */
-    Map<String, dynamic> word = await findWord(keyword);
+    word = await findWord(keyword);
+    word = _fixWord(word);
+    if (word['keyword'] == '') return;
     /* add to table Words */
     await db.transaction((db) async {
       await db.rawInsert('''
-        INSERT INTO Words(word, pronounceEn, pronounceAm, pictureUrl)
+        REPLACE INTO Words(word, pronounceEn, pronounceAm, pictureUrl)
         VALUES ("${word['keyword']}", "${word['pronounce-En']}", "${word['pronounce-Am']}", "${word['picture-url']}");
       ''');
       /* add to table WordList */
       await db.rawInsert('''
-        INSERT INTO WordList(word, wordlist)
+        REPLACE INTO WordList(word, wordlist)
         VALUES ("${word['keyword']}", "$at");
       ''');
       /* add to table WordMeaning */
-      if (word['meaning'] != null && word['meaning'] is List<String>) {
-        for (final meaning in word['meaning']) {
+      if (word['meaning-list'] != null && word['meaning-list'] is List<String>) {
+        for (final meaning in word['meaning-list']) {
+          print('add meanin $meaning to the database');
           await db.rawInsert('''
-            INSERT INTO WordMeaning(word, meaning)
+            REPLACE INTO WordMeaning(word, meaning)
             VALUES ("${word['keyword']}", "$meaning");
           ''');
         }
@@ -142,5 +147,19 @@ class WordChangeNotifier extends ChangeNotifier {
     await _buildData();
     /* notify all listeners */
     notifyListeners();
+  }
+
+  /* give the data some initial value to avoid null */
+  Map<String, dynamic> _fixWord(Map<String, dynamic> word) {
+    Map<String, dynamic> mp = Map<String, dynamic>();
+    mp['keyword'] = '';
+    mp['meaning-list'] = List<String>();
+    mp['pronounce-En'] = 'none';
+    mp['pronounce-Am'] = 'none';
+    mp['picture-url'] = 'none';
+    word.forEach((String str, dynamic content) {
+      mp[str] = content;
+    });
+    return mp;
   }
 }
