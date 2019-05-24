@@ -18,7 +18,7 @@ Future<Map<String, dynamic> > findWord(String keyword) async {
     /* find the chinese meanings */
     findChineseMeaning(document, word);
     /* find the english meanings */
-    findEnglishMeaning(document, word);
+    //findEnglishMeaning(document, word);
   }).then((_) {
     return getPictureURL(word, keyword).then((_){
       return word;

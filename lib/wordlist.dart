@@ -21,7 +21,7 @@ class WordList extends StatelessWidget {
                 child: WordCard(
                   key: Key(wordlist+'{'+keyword+'}'),
                   word: word,
-                  height: 200,
+                  height: 150,
                   width: 300,
                   heroTag: heroTag,
                   margin: EdgeInsets.all(10),
@@ -37,7 +37,7 @@ class WordList extends StatelessWidget {
           );
         }
         return ListView(
-          padding: EdgeInsets.all(50),
+          padding: EdgeInsets.all(30),
           children: children
         );
       }
