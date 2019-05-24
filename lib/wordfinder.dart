@@ -115,15 +115,19 @@ Future<void> getPictureURL(Map<String, dynamic> word, String keyword) async {
     options: Options(responseType: ResponseType.json)
   );
   //print(rsp.data);
-  RegExp exp = RegExp(r'<div style="margin:0 auto; display:none;"><img src=\"([^\"]*)\">');
+  RegExp exp = RegExp(r'(<div\s*style\s*=\s*"margin:0\s*auto;\s*display:none;\s*">\s*<img\s*src\s*=\s*"[^\"]*"\s*/?>)'); 
   Match matches = exp.firstMatch(rsp.data);
   if (matches != null && matches.groupCount > 0) {
     String tagString = matches.group(0);
-    exp = RegExp(r'(http://[^\"]*)');
+    exp = RegExp(r'(http:)?//[^\"]*');
     matches = exp.firstMatch(tagString);
     if (matches != null && matches.groupCount > 0) {
       if (matches.group(0).substring(0,7) == 'http://') {
         word['picture-url'] = matches.group(0);
+        /* Debug */
+        print(word['picture-url']);
+      } else if (matches.group(0).substring(0,2) == '//') {
+        word['picture-url'] = 'http:' + matches.group(0);
         /* Debug */
         print(word['picture-url']);
       }
