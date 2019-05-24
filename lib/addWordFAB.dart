@@ -55,6 +55,7 @@ class _AddWordFABState extends State<AddWordFAB> with TickerProviderStateMixin{
           child: InkWell(
             customBorder: CircleBorder(),
             onTap: (){
+              keyword = '';
               controller.forward();
             },
             child: Icon(
