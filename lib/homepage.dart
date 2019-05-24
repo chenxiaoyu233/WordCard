@@ -35,22 +35,25 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.blueGrey,
-      body: Container(
-        decoration: ShapeDecoration(
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(30))
+      body: ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(30)),
+        child: Container(
+          decoration: ShapeDecoration(
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(30))
+            )
+          ),
+          margin: EdgeInsets.only(top: 20),
+          child: TabBarView(
+            controller: _tabController,
+            children: tabs.map((e) {
+              return Center(
+                child: WordList(wordlist: e),
+              );
+            }).toList()
           )
         ),
-        margin: EdgeInsets.only(top: 40),
-        child: TabBarView(
-          controller: _tabController,
-          children: tabs.map((e) {
-            return Center(
-              child: WordList(wordlist: e),
-            );
-          }).toList()
-        )
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: AddWordFAB(at: tabs[_tabController.index]),
@@ -59,7 +62,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         notchMargin: 4.0,
         color: Colors.blueGrey,
         child: Container(
-          height: 20,
+          height: 30,
           alignment: AlignmentDirectional.center,
           //padding: EdgeInsets.only(right: 90),
           child: TabBar(

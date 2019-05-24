@@ -15,8 +15,10 @@ Future<Map<String, dynamic> > findWord(String keyword) async {
     print(word['keyword']);
     /* find the pronunciation */
     findPronunciation(document, word);
-    /* find the meanings */
-    findMeaning(document, word);
+    /* find the chinese meanings */
+    findChineseMeaning(document, word);
+    /* find the english meanings */
+    findEnglishMeaning(document, word);
   }).then((_) {
     return getPictureURL(word, keyword).then((_){
       return word;
@@ -68,7 +70,7 @@ void findPronunciation(Document document, Map<String, dynamic> word) {
 }
 
 // find the meaning from the document
-void findMeaning(Document document, Map<String, dynamic> word) {
+void findChineseMeaning(Document document, Map<String, dynamic> word) {
   if (document.getElementsByClassName('trans-container').length > 0) {
     List<Element> list = document.getElementsByClassName('trans-container')
                                 .first
@@ -80,6 +82,17 @@ void findMeaning(Document document, Map<String, dynamic> word) {
       print(li.innerHtml);
     }
     word['meaning-list'] = meanings;
+  }
+}
+
+void findEnglishMeaning(Document document, Map<String, dynamic> word) {
+  List<Element> list = document.querySelectorAll('.trans-container .wordGroup .search-js');
+  if (!(word['meaning-list'] is List<String>)) {
+    word['meaning-list'] = new List<String>();
+  }
+  for (final e in list) {
+    word['meaning-list'].add(e.innerHtml);
+    print(e.innerHtml);
   }
 }
 

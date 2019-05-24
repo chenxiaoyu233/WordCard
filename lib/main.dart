@@ -1,6 +1,7 @@
 // system library
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
@@ -30,7 +31,17 @@ class TheApp extends StatelessWidget {
     return MaterialApp(
       home: ChangeNotifierProvider(
         builder: (context) => WordChangeNotifier(),
-        child: HomePage(),
+        child: Container(
+          decoration: ShapeDecoration(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(15))
+            )
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.all(Radius.circular(15)),
+            child: HomePage(),
+          )
+        )
       ),
       darkTheme: ThemeData(
         primaryColor: Colors.orange
